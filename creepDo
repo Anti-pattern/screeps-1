@@ -35,7 +35,7 @@ module.exports = function()
 		var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
 		if(source.energy) {
 			creep.moveTo(source);
-			creep.harvest(sources);
+			creep.harvest(source);
 		}
 		else {
 		console.log("All resources currently empty.")
