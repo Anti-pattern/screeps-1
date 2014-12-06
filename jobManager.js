@@ -46,7 +46,7 @@ module.exports = function()
     		{
     			Game.creeps[i].memory.job = "sharvest";	
     		}
-    		else if (jobManager.creepHasMeans(Game.creeps[i], "attack"))
+    		else if (jobManager.creepHasMeans(Game.creeps[i], "attackHostile"))
     		{
     			Game.creeps[i].memory.job = "guard";
     		}
