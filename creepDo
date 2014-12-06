@@ -49,8 +49,8 @@ module.exports = function()
 	{
 		var dropped = creep.pos.findNearest(Game.DROPPED_ENERGY);
 		if (creep.energy == creep.energyCapacity) {
-			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS);
-			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS);
+			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
+			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
 		}
 		else {
 			creep.moveTo(dropped);
