@@ -1,6 +1,6 @@
 var jobManager = require('jobManager')();
 var units = require('units');
-var i = 1;
+var i = require('wave');
 module.exports = function()
 {
 	//declare base object
@@ -10,7 +10,7 @@ module.exports = function()
 	//game costs for spawning parts
 	spawnManager.costs = {};
 	spawnManager.costs[Game.MOVE] = 50; 
-	spawnManager.costs[Game.WORK] = 20; 
+	spawnManager.costs[Game.WORK] = 20;
 	spawnManager.costs[Game.CARRY] = 50;
 	spawnManager.costs[Game.ATTACK] = 100;
 	spawnManager.costs[Game.RANGED_ATTACK] = 150;
@@ -26,26 +26,35 @@ module.exports = function()
 
 		console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount +  " Guard: " + guardCount);
 
-		if (sharvesterCount < i)
+	if()		
+		if (!sharvesterCount){
+			console.log('Attempting to spawn initial harvester');
+			spawnManager.spawnUnit('hulk');
+		}
+		else if (sharvesterCount < guardCount/5)
 		{
 			console.log('Attempting to spawn harvester');
 			spawnManager.spawnUnit('hulk');
 		}
-		else if (collectorCount < (i*2))
+		else if (collectorCount < (sharvesterCount*2))
 		{
 			console.log('Attempting to spawn collector')
 			spawnManager.spawnUnit('iteron')
+//			var buddies = creep.room.find(Game.MY_CREEPS);
+//			for (var i in buddies){
+//				if (jobManager.creepHasMeans(buddies[i], 'sharvest'){
+//					if(buddies[i].memory.pals<2){
+//						
+//					}
+//				}
+//			}
 		}
 			
-		else if (guardCount < (i*5)) 
+		else 
 		{
 			console.log('Attempting to spawn guard');
 			spawnManager.spawnUnit('guard');
 		}
-		else
-		{
-		i = i+1;
-		}		}
 	}
 
 	// returns cost for list of parts
@@ -83,6 +92,7 @@ module.exports = function()
 				var creepName = spawnManager.generateName(name)
 				console.log("creating creep " + name + " : " + creepName);
 				spawn.createCreep(units[name].parts, creepName, units[name].memory);
+				units[name].memory.pals = 0;
 			}
 		}
 		else
