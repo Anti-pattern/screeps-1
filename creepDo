@@ -1,0 +1,61 @@
+module.exports = function()
+
+	{
+	//declare base object
+	var creepDo = function() {};
+//-------------------------------------------------------------------------
+
+	creepDo.attackHostile = function (creep)
+	{
+		var targets = creep.room.find(Game.HOSTILE_CREEPS);
+		if (targets.length) {
+			creep.moveTo(targets[0]);
+			creep.attack(targets[0]);
+		}
+	}
+	
+	creepDo.mharvest = function (creep)
+	{
+		if(creep.energy < creep.energyCapacity) {
+			var sources = creep.pos.findNearest(Game.SOURCES);
+			creep.moveTo(sources);
+			creep.harvest(sources);
+	}
+		else {
+			var target = creep.pos.findNearest(Game.MY_SPAWNS);
+			creep.moveTo(target);
+			creep.transferEnergy(target);
+		}
+	}
+	
+// sharvest causes creep to move to the nearest active source and begin collecting.
+// designed for use with a harvester who drops energy to be collected by unit with collect method
+	creepDo.sharvest = function (creep)
+	{
+		var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
+		if(source.energy) {
+			creep.moveTo(source);
+			creep.harvest(sources);
+		}
+		else {
+		console.log("All resources currently empty.")
+		}
+	}
+// looks for dropped energy and brings it home
+	creepDo.collect = function (creep)
+	{
+		var dropped = creep.pos.findNearest(Game.DROPPED_ENERGY);
+		if (creep.pos.isNearTo(dropped)) {
+			pickup(dropped);
+			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS);
+			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS);
+		}
+		else {
+			creep.moveTo(dropped);
+		}
+	}
+	
+//-------------------------------------------------------------------------
+//return populated object
+return creepDo;
+}
