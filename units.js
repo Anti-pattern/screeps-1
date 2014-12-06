@@ -18,4 +18,17 @@ module.exports =
 			"name": "guard"
 		}
 	}
+	
+	"hulk": {
+		"parts": [Game.WORK, Game.WORK, Game.WORK, Game.WORK, Game.MOVE],
+		"memory": {
+			"name": "hulk"
+		}
+	},
+	"iteron": {
+		"parts": [Game.CARRY, Game.CARRY, Game.CARRY, Game.MOVE, Game.MOVE],
+		"memory": {
+			"name": "iteron"
+		}
+	},
 }
