@@ -48,13 +48,13 @@ module.exports = function()
 	creepDo.collect = function (creep)
 	{
 		var dropped = creep.pos.findNearest(Game.DROPPED_ENERGY);
-		if (creep.pos.isNearTo(dropped)) {
-			creep.pickup(dropped);
+		if (creep.energy == creep.energyCapacity) {
 			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS);
 			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS);
 		}
 		else {
 			creep.moveTo(dropped);
+			creep.pickup(dropped);
 		}
 	}
 	
