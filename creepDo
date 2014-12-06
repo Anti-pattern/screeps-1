@@ -30,17 +30,20 @@ module.exports = function()
 	
 // sharvest causes creep to move to the nearest active source and begin collecting.
 // designed for use with a harvester who drops energy to be collected by unit with collect method
+
 	creepDo.sharvest = function (creep)
 	{
 		var source = creep.pos.findNearest(Game.SOURCES_ACTIVE);
 		if(source.energy) {
 			creep.moveTo(source);
 			creep.harvest(source);
+			creep.dropEnergy();
 		}
 		else {
 		console.log("All resources currently empty.")
 		}
 	}
+
 // looks for dropped energy and brings it home
 	creepDo.collect = function (creep)
 	{
