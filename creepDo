@@ -9,9 +9,20 @@ module.exports = function()
 	{
 		var targets = creep.room.find(Game.HOSTILE_CREEPS);
 		if (targets.length) {
-			creep.moveTo(targets[0]);
-			creep.attack(targets[0]);
+			mytarget = creep.pos.findNearest(Game.HOSTILE_CREEPS);
+			if (creep.pos.inRangeTo(mytarget, 3) {
+				rangedAttack(mytarget);
+			}
+			if (creep.pos.inRangeTo(mytarget, 2) {
+				creepDo.moveAwayFromTarget(mytarget);
+				}
+			else {
+				creep.moveTo(mytarget);
+			}
+			
 		}
+		else if creep.pos.isNextTo(Game.MY_SPAWNS) {
+			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_SPAWNS);
 	}
 	
 	creepDo.mharvest = function (creep)
@@ -57,6 +68,14 @@ module.exports = function()
 			creep.pickup(dropped);
 		}
 	}
+	
+	creepDo.moveAwayFromTarget = function (creep, target)
+	{
+		var avoid = getDirectionTo(target);
+		creep.move((avoid+4)%8)
+	}
+	
+	
 	
 //-------------------------------------------------------------------------
 //return populated object
