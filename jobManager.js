@@ -86,3 +86,4 @@ var jobManager = function() {};
 //return populated object
 	return jobManager;
 };
+
