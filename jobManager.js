@@ -1,7 +1,6 @@
 var _ = require('lodash');
 
-var jobAttackHostile = require('jobAttackHostile')();
-var jobHarvest = require('jobHarvest')();
+var creepDo = require('creepDo')();
 var means = require('means');
 
 module.exports = function()
@@ -15,13 +14,21 @@ module.exports = function()
 		for(var i in Game.creeps) 
 		{
 			var creep = Game.creeps[i];
-			if (creep.memory.job == 'harvest')
+			if (creep.memory.job == 'mharvest')
 			{
-				jobHarvest.work(creep);
+				creepDo.mharvest(creep);
+			}
+			else if (creep.memory.job == 'sharvest')
+			{
+				creepDo.sharvest(creep);
 			}
 			else if (creep.memory.job == 'guard')
 			{
-				jobAttackHostile.work(creep);
+				creepDo.attackHostile(creep);
+			}
+			else if (creep.memory.job == 'collect')
+			{
+				creepDo.collect(creep);
 			}
 
 		}	
@@ -31,13 +38,21 @@ module.exports = function()
 	{
 		for(var i in Game.creeps) 
 		{
-    		if (jobManager.creepHasMeans(Game.creeps[i], "harvest"))
+    		if (jobManager.creepHasMeans(Game.creeps[i], "mharvest"))
     		{
-    			Game.creeps[i].memory.job = "harvest";	
+    			Game.creeps[i].memory.job = "mharvest"
+    		}
+    		if (jobManager.creepHasMeans(Game.creeps[i], "sharvest"))
+    		{
+    			Game.creeps[i].memory.job = "sharvest";	
     		}
     		else if (jobManager.creepHasMeans(Game.creeps[i], "attack"))
     		{
     			Game.creeps[i].memory.job = "guard";
+    		}
+    		else if (jobManager.creepHasMeans(Game.creeps[i], "collect"))
+    		{
+    			Game.creeps[i].memory.job = "collect"
     		}
     		else
     		{
