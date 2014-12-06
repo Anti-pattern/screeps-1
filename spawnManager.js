@@ -1,6 +1,6 @@
 var jobManager = require('jobManager')();
 var units = require('units');
-
+var i = 1;
 module.exports = function()
 {
 	//declare base object
@@ -23,7 +23,7 @@ module.exports = function()
 		var sharvesterCount = jobManager.countUnitWithMeans('sharvest');
 		var collectorCount = jobManager.countUnitWithMeans('collect')
 		var guardCount = jobManager.countUnitWithMeans('attackHostile');
-		var i = 1;
+
 		console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount +  " Guard: " + guardCount);
 
 		if (sharvesterCount < i)
@@ -31,7 +31,7 @@ module.exports = function()
 			console.log('Attempting to spawn harvester');
 			spawnManager.spawnUnit('hulk');
 		}
-		else if (collectorCount < (i*3))
+		else if (collectorCount < (i*2))
 		{
 			console.log('Attempting to spawn collector')
 			spawnManager.spawnUnit('iteron')
@@ -43,10 +43,9 @@ module.exports = function()
 			spawnManager.spawnUnit('guard');
 		}
 		else
-		i = i+1;
 		{
-			
-		}
+		i = i+1;
+		}		}
 	}
 
 	// returns cost for list of parts
