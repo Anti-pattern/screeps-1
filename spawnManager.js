@@ -22,7 +22,7 @@ module.exports = function()
 	{
 		var sharvesterCount = jobManager.countUnitWithMeans('sharvest');
 		var collectorCount = jobManager.countUnitWithMeans('collect')
-		var guardCount = jobManager.countUnitWithMeans('attack');
+		var guardCount = jobManager.countUnitWithMeans('attackHostile');
 		var i = 1;
 		console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount +  " Guard: " + guardCount);
 
