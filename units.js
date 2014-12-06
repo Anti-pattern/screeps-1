@@ -13,7 +13,7 @@ module.exports =
 		}
 	},
 	"guard": {
-		"parts": [Game.TOUGH, Game.MOVE, Game.ATTACK],
+		"parts": [Game.TOUGH, Game.MOVE, Game.MOVE, Game.RANGED_ATTACK, Game.RANGED_ATTACK],
 		"memory": {
 			"name": "guard"
 		}
