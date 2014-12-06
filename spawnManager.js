@@ -20,19 +20,32 @@ module.exports = function()
 	//spawn
 	spawnManager.spawn = function ()
 	{
-		//spawn a harvester if we don't have 3
-		var harvesterCount = jobManager.countUnitWithMeans('harvest');
+		var sharvesterCount = jobManager.countUnitWithMeans('sharvest');
+		var collectorCount = jobManager.countUnitWithMeans('collect')
 		var guardCount = jobManager.countUnitWithMeans('attack');
+		var i = 1;
+		console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount +  " Guard: " + guardCount);
 
-		console.log('Unit Count - Harvest: ' + harvesterCount + " Guard: " + guardCount);
-
-		if (harvesterCount < 3)
+		if (sharvesterCount < i)
 		{
 			console.log('Attempting to spawn harvester');
-			spawnManager.spawnUnit('harvester');
-		} else {
+			spawnManager.spawnUnit('hulk');
+		}
+		else if (collectorCount < (i*3))
+		{
+			console.log('Attempting to spawn collector')
+			spawnManager.spawnUnit('iteron')
+		}
+			
+		else if (guardCount < (i*5)) 
+		{
 			console.log('Attempting to spawn guard');
 			spawnManager.spawnUnit('guard');
+		}
+		else
+		i = i+1;
+		{
+			
 		}
 	}
 
