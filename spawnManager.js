@@ -119,3 +119,4 @@ spawnManager.costs[Game.TOUGH] = 5;
 //return populated object
 	return spawnManager;
 }
+
