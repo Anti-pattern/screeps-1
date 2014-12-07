@@ -17,11 +17,11 @@ module.exports = function()
 				creep.moveTo(mytarget);
 			}
 		}
-		else if (creep.pos.isNearTo(Game.MY_SPAWNS)) {
-			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(creep, Game.MY_SPAWNS));
+		else if (creep.pos.isNearTo(creep.pos.findNearest(Game.MY_SPAWNS))) {
+			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_SPAWNS));
 			}
-		else if (creep.pos.isNearTo(Game.MY_CREEPS)){
-			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(creep, Game.MY_CREEPS));
+		else if (creep.pos.isNearTo(creep.pos.findNearest(Game.MY_CREEPS))){
+			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_CREEPS));
 		}
 	};
 	creepDo.mharvest = function (creep)
