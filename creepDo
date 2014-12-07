@@ -3,18 +3,20 @@ module.exports = function()
 //declare base object
 	var creepDo = function() {};
 //-------------------------------------------------------------------------
-	creepDo.attackHostile = function (creep){
+	creepDo.standguard = function (creep){
 		var targets = creep.room.find(Game.HOSTILE_CREEPS);
 		if (targets.length) {
 			var mytarget = creep.pos.findNearest(Game.HOSTILE_CREEPS);
-			if (creep.pos.inRangeTo(mytarget, 3)) {
+			if (mytarget){
+				if (creep.pos.inRangeTo(mytarget, 3)) {
 				creep.rangedAttack(mytarget);
-			}
-			if (creep.pos.inRangeTo(mytarget, 2)) {
-				creepDo.moveAwayFromTarget(creep, mytarget);
-			}
-			else {
-				creep.moveTo(mytarget);
+				}
+				if (creep.pos.inRangeTo(mytarget, 2)) {
+					creepDo.moveAwayFromTarget(creep, mytarget);
+				}
+				else {
+					creep.moveTo(mytarget);
+				}
 			}
 		}
 		else if (creep.pos.isNearTo(creep.pos.findNearest(Game.MY_SPAWNS))) {
@@ -60,12 +62,9 @@ module.exports = function()
 			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
 			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
 		}
-		else if (!creep.energy) {
+		else{
 			creep.moveTo(dropped);
 			creep.pickup(dropped);
-		}
-		else {
-			console.log("I can't move!");
 		}
 	};
 	creepDo.moveAwayFromTarget = function (creep, target)
