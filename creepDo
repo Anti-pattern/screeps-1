@@ -1,3 +1,5 @@
+var _ = require('lodash');
+var math = require('math') ();
 module.exports = function()
 {
 //declare base object
@@ -19,12 +21,13 @@ module.exports = function()
 				}
 			}
 		}
-		else if (creep.pos.isNearTo(creep.pos.findNearest(Game.MY_SPAWNS))) {
+		else if (creep.pos.inRangeTo(creep.pos.findNearest(Game.MY_SPAWNS), 3)) {
 			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_SPAWNS));
-			}
-		else if (creep.pos.isNearTo(creep.pos.findNearest(Game.MY_CREEPS))){
-			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_CREEPS));
 		}
+		else if (creep.pos.inRangeTo(creepDo.findClosestAlly(creep), 2)) {
+			creepDo.moveAwayFromTarget(creep, creepDo.findClosestAlly(creep));
+			}
+		
 	};
 	creepDo.mharvest = function (creep)
 	{
@@ -71,6 +74,25 @@ module.exports = function()
 	{
 		var avoid = creep.pos.getDirectionTo(target);
 		creep.move((avoid+4)%8);
+	};
+	
+	creepDo.findClosestAlly = function (creep)
+	{
+		if (creep.room.find(Game.MY_CREEPS).length) {
+			var friendlies = _.without(creep.room.find(Game.MY_CREEPS), creep);
+			var closestcreep = friendlies[0];
+			var dist = 2000;
+			for (var i in friendlies) {
+					if ( (math.abs((creep.pos.x - friendlies[i].pos.x)) + math.abs((creep.pos.y - friendlies[i].pos.y))) < dist){
+					dist = math.abs((creep.pos.x - friendlies[i].pos.x)) + math.abs((creep.pos.y - friendlies[i].pos.y));
+					closestcreep = friendlies[i];
+				}
+			}
+		    return closestcreep;
+		}
+		else {
+			return false;
+		}
 	};
 //-------------------------------------------------------------------------
 //return populated object
