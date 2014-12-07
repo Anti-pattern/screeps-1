@@ -22,7 +22,7 @@ var jobManager = function() {};
 			}
 			else if (creep.memory.job == 'guard')
 			{
-				creepDo.attackHostile(creep);
+				creepDo.standguard(creep);
 			}
 			else if (creep.memory.job == 'collect')
 			{
