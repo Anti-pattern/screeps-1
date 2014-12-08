@@ -79,14 +79,14 @@ module.exports = function()
 	
 	creepDo.findClosest = function (creep, thingtype)
 	{
-		if (creep.room.find(Game.type).length) {
+		if (creep.room.find(thingtype).length) {
 			var things = _.without(creep.room.find(thingtype), creep);
 			var closest = things[0];
 			var dist = 2000;
 			for (var i in things) {
 					if ( (math.abs((creep.pos.x - things[i].pos.x)) + math.abs((creep.pos.y - things[i].pos.y))) < dist){
 					dist = math.abs((creep.pos.x - things[i].pos.x)) + math.abs((creep.pos.y - things[i].pos.y));
-					closestcreep = things[i];
+					closest = things[i];
 				}
 			}
 		    return closest;
