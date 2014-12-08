@@ -5,7 +5,7 @@ module.exports = function()
 //declare base object
 	var creepDo = function() {};
 //-------------------------------------------------------------------------
-	creepDo.standguard = function (creep){
+	creepDo.rangedSeek1 = function (creep){
 		var targets = creep.room.find(Game.HOSTILE_CREEPS);
 		if (targets.length) {
 			var mytarget = creep.pos.findNearest(Game.HOSTILE_CREEPS);
@@ -21,15 +21,14 @@ module.exports = function()
 				}
 			}
 		}
-		else if (creep.pos.inRangeTo(creepDo.findClosest(creep, Game.MY_SPAWNS), 3)) {
-			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, Game.MY_SPAWNS));
+		else {
+			creepDo.avoidClosest(creep, Game.MY_SPAWNS, 3);
+			creepDo.avoidClosest(creep, Game.MY_CREEPS, 2);
 		}
-		else if (creep.pos.inRangeTo(creepDo.findClosest(creep, Game.MY_CREEPS), 2)) {
-			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, Game.MY_CREEPS));
-		}
-		
 	};
-	creepDo.mharvest = function (creep)
+
+
+	creepDo.mharvest1 = function (creep)
 	{
 		if(creep.energy < creep.energyCapacity) {
 			var sources = creep.pos.findNearest(Game.SOURCES);
@@ -42,10 +41,9 @@ module.exports = function()
 			creep.transferEnergy(target);
 		}
 	};
-// sharvest causes creep to move to the nearest active source and begin collecting.
-// designed for use with a harvester who drops energy to be collected by unit with collect method
 
-	creepDo.sharvest = function (creep)
+
+	creepDo.sharvest1 = function (creep)
 	{
 		var source = creep.pos.findNearest(Game.SOURCES);
 		if(source.energy) {
@@ -57,6 +55,23 @@ module.exports = function()
 			console.log("All resources currently empty.");
 		}
 	};
+	
+	creepDo.collector1 = function (creep)
+	{
+		if (creep.energy < creep.energyCapacity){
+			creepDo.collectEnergy(creep);
+		}
+		else {
+			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
+			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
+		}
+	}
+	
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+
+
 // looks for closest dropped energy and collects it until full
 	creepDo.collectEnergy = function (creep)
 	{
@@ -95,6 +110,13 @@ module.exports = function()
 			return creep.pos;
 		}
 	};
+	
+	creepDo.avoidClosest = function (creep, thingtype, distance)
+	{
+		if (creep.pos.inRangeTo(creepDo.findClosest(creep, thingtype), distance)) {
+			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, thingtype));
+		}
+	}
 //-------------------------------------------------------------------------
 //return populated object
 return creepDo;
