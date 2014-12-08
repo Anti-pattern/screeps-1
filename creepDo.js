@@ -21,12 +21,12 @@ module.exports = function()
 				}
 			}
 		}
-		else if (creep.pos.inRangeTo(creep.pos.findNearest(Game.MY_SPAWNS), 3)) {
-			creepDo.moveAwayFromTarget(creep, creep.pos.findNearest(Game.MY_SPAWNS));
+		else if (creep.pos.inRangeTo(creepDo.findClosest(creep, Game.MY_SPAWNS), 3)) {
+			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, Game.MY_SPAWNS));
 		}
-		else if (creep.pos.inRangeTo(creepDo.findClosestAlly(creep), 2)) {
-			creepDo.moveAwayFromTarget(creep, creepDo.findClosestAlly(creep));
-			}
+		else if (creep.pos.inRangeTo(creepDo.findClosest(creep, Game.MY_CREEPS), 2)) {
+			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, Game.MY_CREEPS));
+		}
 		
 	};
 	creepDo.mharvest = function (creep)
@@ -57,41 +57,42 @@ module.exports = function()
 			console.log("All resources currently empty.");
 		}
 	};
-// looks for dropped energy and brings it home
-	creepDo.collect = function (creep)
+// looks for closest dropped energy and collects it until full
+	creepDo.collectEnergy = function (creep)
 	{
 		var dropped = creep.pos.findNearest(Game.DROPPED_ENERGY);
-		if (creep.energy == creep.energyCapacity) {
-			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
-			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
-		}
-		else{
-			creep.moveTo(dropped);
-			creep.pickup(dropped);
-		}
+		creep.moveTo(dropped);
+		creep.pickup(dropped);
 	};
+
+	creepDo.goToMySpawn = function (creep)
+	{
+	creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
+	}
+	
+	
 	creepDo.moveAwayFromTarget = function (creep, target)
 	{
 		var avoid = creep.pos.getDirectionTo(target);
 		creep.move((avoid+4)%8);
 	};
 	
-	creepDo.findClosestAlly = function (creep)
+	creepDo.findClosest = function (creep, thingtype)
 	{
-		if (creep.room.find(Game.MY_CREEPS).length) {
-			var friendlies = _.without(creep.room.find(Game.MY_CREEPS), creep);
-			var closestcreep = friendlies[0];
+		if (creep.room.find(Game.type).length) {
+			var things = _.without(creep.room.find(thingtype), creep);
+			var closest = things[0];
 			var dist = 2000;
-			for (var i in friendlies) {
-					if ( (math.abs((creep.pos.x - friendlies[i].pos.x)) + math.abs((creep.pos.y - friendlies[i].pos.y))) < dist){
-					dist = math.abs((creep.pos.x - friendlies[i].pos.x)) + math.abs((creep.pos.y - friendlies[i].pos.y));
-					closestcreep = friendlies[i];
+			for (var i in things) {
+					if ( (math.abs((creep.pos.x - things[i].pos.x)) + math.abs((creep.pos.y - things[i].pos.y))) < dist){
+					dist = math.abs((creep.pos.x - things[i].pos.x)) + math.abs((creep.pos.y - things[i].pos.y));
+					closestcreep = things[i];
 				}
 			}
-		    return closestcreep;
+		    return closest;
 		}
 		else {
-			return false;
+			return creep.pos;
 		}
 	};
 //-------------------------------------------------------------------------
