@@ -12,14 +12,33 @@ var jobManager = function() {};
 		for(var i in Game.creeps)
 		{
 			var creep = Game.creeps[i];
-			if (creep.memory.job == 'mharvest')
-			{
-				creepDo.mharvest(creep);
-			}
-			else if (creep.memory.job == 'sharvest')
+			if (creep.memory.job == 'sharvest')
 			{
 				creepDo.sharvest1(creep);
 			}
+			
+			
+			else if (creep.memory.job == 'collector1')
+			{
+				if (creep.memory.currentlyAssigned===0 && !creep.spawning){
+					var guys = creep.room.find(Game.MY_CREEPS);
+					var harvesters = [];
+					for (var ii in guys){
+						if (guys[ii].memory.job=='sharvest' && guys[ii].memory.collectors < 2){
+							harvesters.push(guys[ii]);
+						}
+					}
+					if (harvesters.length){
+						creep.memory.currentlyAssigned = 1;
+						creep.memory.assignment = creepDo.findClosestArray(creep, harvesters).name;
+					}
+				}
+				else {
+					creepDo.collectEnergy(creep);
+				}
+			}
+			
+			
 			else if (creep.memory.job == 'guard')
 			{
 				creepDo.rangedSeek1(creep);
@@ -28,6 +47,7 @@ var jobManager = function() {};
 			{
 				creepDo.collector1(creep);
 			}
+			
 		}
 	};
 	jobManager.assignJobs = function ()
@@ -48,7 +68,7 @@ var jobManager = function() {};
 			}
 			else if (jobManager.creepHasMeans(Game.creeps[i], "collect"))
 			{
-				Game.creeps[i].memory.job = "collect";
+				Game.creeps[i].memory.job = "collector1";
 			}
 			else
 			{
@@ -56,6 +76,50 @@ var jobManager = function() {};
 			}
 		}
 	};
+	
+	jobManager.checkStatus = function ()
+	{
+		for (var xx in Game.creeps){
+			var assCollect = 0;
+			for (var xxx in Game.creeps){
+				if (Game.creeps[xxx].memory.assignment == Game.creeps[xx].name){
+					if(Game.creeps[xxx].memory.job == "collector1" && Game.creeps[xx].memory.job == "sharvest"){
+						assCollect ++;
+					}
+				}
+			}
+			Game.creeps[xx].memory.collectors = assCollect;
+		}
+		
+		for (var y in Game.spawns){
+			var roomSources = Game.spawns[y].room.find(Game.SOURCES);
+			var availSources = Game.spawns[y].room.find(Game.SOURCES);
+
+			if (!Game.spawns[y].memory.currentlyAssigned){
+				for (var yx in Game.spawns){
+					if (availSources.length){
+						for (var yy in Game.spawns[yx].room.find(Game.SOURCES)){
+							if (Game.spawns[yx].room.find(Game.SOURCES)[yy].id == Game.spawns[yx].memory.assignedSource){
+								availSources.splice(availSources.indexOf(Game.spawns[yx].room.find(Game.SOURCES)[yy]), 1);
+							}
+						}
+					}
+				}
+				if (availSources.length){
+							Game.spawns[y].memory.assignedSource = creepDo.findClosestArray(Game.spawns[y], availSources).id;
+							Game.spawns[y].memory.currentlyAssigned = 1;
+							console.log("!!!" + Game.spawns[y] + " Source assigned!!!");
+				}
+				else {
+							console.log("It's true! " + Game.spawns[y].name + "is sourceless!  Sourceless, like an ANIMAL!");
+				}
+			}
+		}
+		
+		
+		
+	}
+	
 	jobManager.creepHasMeans = function (creep, mean)
 	{
 		var creepParts = [];
