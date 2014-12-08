@@ -20,21 +20,29 @@ var jobManager = function() {};
 			
 			else if (creep.memory.job == 'collector1')
 			{
-				if (creep.memory.currentlyAssigned===0 && !creep.spawning){
-					var guys = creep.room.find(Game.MY_CREEPS);
-					var harvesters = [];
-					for (var ii in guys){
-						if (guys[ii].memory.job=='sharvest' && guys[ii].memory.collectors < 2){
-							harvesters.push(guys[ii]);
+				if (!creep.spawning){
+					if (creep.memory.currentlyAssigned===0){
+						var guys = creep.room.find(Game.MY_CREEPS);
+						var harvesters = [];
+						for (var ii in guys){
+							if (guys[ii].memory.job=='sharvest' && guys[ii].memory.collectors < 2){
+								harvesters.push(guys[ii]);
+							}
+						}
+						if (harvesters.length){
+							creep.memory.currentlyAssigned = 1;
+							creep.memory.assignment = creepDo.findClosestArray(creep, harvesters).name;
 						}
 					}
-					if (harvesters.length){
-						creep.memory.currentlyAssigned = 1;
-						creep.memory.assignment = creepDo.findClosestArray(creep, harvesters).name;
+					else {
+						if (creep.pos.inRangeTo(creepDo.rememberCreep(creep.memory.assignment), 3) && creep.energy < creep.energyCapacity){
+						creepDo.collectEnergy(creep);
+						}
+						else if (creep.energy == creep.energyCapacity){
+							creepDo.bringEnergyHome(creep);
+						}
+						else (creep.moveTo(creepDo.rememberCreep(creep.memory.assignment)));
 					}
-				}
-				else {
-					creepDo.collectEnergy(creep);
 				}
 			}
 			
@@ -77,8 +85,12 @@ var jobManager = function() {};
 		}
 	};
 	
+	
+	
 	jobManager.checkStatus = function ()
 	{
+
+// Assign collectors to their harvesters in memory
 		for (var xx in Game.creeps){
 			var assCollect = 0;
 			for (var xxx in Game.creeps){
@@ -90,7 +102,8 @@ var jobManager = function() {};
 			}
 			Game.creeps[xx].memory.collectors = assCollect;
 		}
-		
+
+// Check status of and assign a source to spawns if they don't have one.
 		for (var y in Game.spawns){
 			var roomSources = Game.spawns[y].room.find(Game.SOURCES);
 			var availSources = Game.spawns[y].room.find(Game.SOURCES);
@@ -117,7 +130,7 @@ var jobManager = function() {};
 		}
 		
 		
-		
+// ---------------------------------------------------------------
 	}
 	
 	jobManager.creepHasMeans = function (creep, mean)
