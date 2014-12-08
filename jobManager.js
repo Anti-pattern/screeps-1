@@ -18,15 +18,15 @@ var jobManager = function() {};
 			}
 			else if (creep.memory.job == 'sharvest')
 			{
-				creepDo.sharvest(creep);
+				creepDo.sharvest1(creep);
 			}
 			else if (creep.memory.job == 'guard')
 			{
-				creepDo.standguard(creep);
+				creepDo.rangedSeek1(creep);
 			}
 			else if (creep.memory.job == 'collect')
 			{
-				creepDo.collect(creep);
+				creepDo.collector1(creep);
 			}
 		}
 	};
