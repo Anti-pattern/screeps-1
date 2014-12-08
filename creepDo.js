@@ -45,7 +45,7 @@ module.exports = function()
 
 	creepDo.sharvest1 = function (creep)
 	{
-		var source = creep.pos.findNearest(Game.SOURCES);
+		var source = creepDo.rememberSpawnSource(creep);
 		if (source){
 			if (!creep.pos.isNearTo(source));{
 				creep.moveTo(source);
@@ -54,7 +54,7 @@ module.exports = function()
 				creep.harvest(source);
 			}
 			else {
-				console.log("All resources currently empty.");
+				console.log(creep.memory.homeSpawn + "'s source is dry.");
 			}
 		}
 		else {
@@ -76,16 +76,13 @@ module.exports = function()
 			creep.moveTo(dropped);
 			creep.pickup(dropped);
 		}
-		else {
-			creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
-			creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
-		}
 	};
 	
 
-	creepDo.goToMySpawn = function (creep)
+	creepDo.bringEnergyHome = function (creep)
 	{
 	creep.moveTo(creep.pos.findNearest(Game.MY_SPAWNS));
+	creep.transferEnergy(creep.pos.findNearest(Game.MY_SPAWNS));
 	};
 	
 	
@@ -137,8 +134,42 @@ module.exports = function()
 	{
 		if (creep.pos.inRangeTo(creepDo.findClosest(creep, thingtype), distance)) {
 			creepDo.moveAwayFromTarget(creep, creepDo.findClosest(creep, thingtype));
+	
 		}
 	};
+	
+	creepDo.rememberCreep = function (name)
+	{
+		for (var z in Game.creeps){
+			if (Game.creeps[z].name == name){
+				return Game.creeps[z];
+			}
+		}
+	}
+	
+	creepDo.rememberSource = function (spawner)
+	{
+		for (var zz in spawner.room.find(Game.SOURCES)){
+			if (spawner.memory.assignedSource == spawner.room.find(Game.SOURCES)[zz].id){
+				return spawner.room.find(Game.SOURCES)[zz];
+			}
+		}
+			
+	}
+	
+	creepDo.rememberSpawner = function (creep)
+	{
+		for (var zzz in Game.spawns){
+			if (Game.spawns[zzz].name == creep.memory.homeSpawn){
+				return Game.spawns[zzz];
+			}
+		}
+	}
+	
+	creepDo.rememberSpawnSource = function (creep)
+	{
+		return creepDo.rememberSource(creepDo.rememberSpawner(creep));
+	}
 //-------------------------------------------------------------------------
 //return populated object
 return creepDo;
