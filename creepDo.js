@@ -170,6 +170,41 @@ module.exports = function()
 	{
 		return creepDo.rememberSource(creepDo.rememberSpawner(creep));
 	}
+	
+	creepDo.calculateSpawnConstruction = function (creep)
+	{
+		var sources = creep.room.find(Game.SOURCES);
+		var sourceLocations = [];
+		var spawnLocations = [];
+		var shortest = 1337
+		
+		// Find the two sources that are closest to each other, save their 
+		// objects as sourceLocations[0] and [1] for later use.
+		
+		for (var a in sources){
+			for (var aa in _.without(sources, sources[a])){
+				if (sources[a].pos.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length < shortest){
+					shortest = sources[a].pos.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length;
+					sourceLocations[0] = source[a];
+					sourceLocations[1] = source[aa];
+				}
+			}
+		}
+		
+		// Find the halfway point between the two closest sources.
+		// If it isn't 0, save it to spawnLocations[0] as a position object.
+		var path = creep.room.findPath(sourceLocations[0].pos), sourceLocations[1].pos);
+		var halfwayIndex = math.round(path.length)
+		if (halfwayIndex > 1){
+			spawnLocations[0] = getPositionAt(path[halwayIndex].x, path.y);
+		}
+		else {
+			console.log("I have no idea what to do here yet. HEY PROGRAMMER, FIX ME!!")
+		}
+		
+		// Find the halfway point between the two closest spawn points of the remaining 3
+		
+	}
 //-------------------------------------------------------------------------
 //return populated object
 return creepDo;
