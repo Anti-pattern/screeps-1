@@ -262,15 +262,31 @@ module.exports = function()
 		if (path.length > shortest){
 			if (sourceLocation[2] == sourceLocation[4] || sourceLocation[3] == sourceLocation[4]){
 				// Make sure we're moving to the right source, the one farther from spawnLocations[0].
-				if (creep.room.findPath(spawnLocation[0], sourceLocation[2], {ignoreCreeps: true}).length < creep.room.findPath(spawnLocation[0], sourceLocation[3], {ignoreCreeps:true}).length){
+				if (creep.room.findPath(spawnLocation[0], sourceLocation[2], {ignoreCreeps: true}).length > creep.room.findPath(spawnLocation[0], sourceLocation[3], {ignoreCreeps:true}).length){
 					path = creep.room.findPath(spawnLocation[1], sourceLocation[2], {ignoreCreeps:true});
-					var indexA = path.length - 1;
+					var indexA = path.length - 2;
+					spawnLocation[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
+				}
+				else {
+					path = creep.room.findPath(spawnLocation[1], sourceLocation[3], {ignoreCreeps:true});
+					var indexA = path.length - 2;
 					spawnLocation[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
 				}
 			}
 		}
 		
+		// All that's left now is to assign the final spawnLocation to the remaining source.
+		// That source is going to be the one that isn't sourceLocation [2] or [3].
+		for (var e in sources){
+			if (sources[e].pos != sourceLocation[2] && sources[e].pos != sourceLocation[3]){
+				path = creep.room.findPath(creep.pos, sources[e].pos, {ignoreCreeps:true});
+				var indexB = path.length - 2;
+				spawnLocation[2] = creep.room.getPositionAt(path[indexB].x, path[indexB].y);
+			}
+		}
 		
+		// Returns array describing where spawns should be in the order they should be spawned.
+		return spawnLocation;
 	}
 //-------------------------------------------------------------------------
 //return populated object
