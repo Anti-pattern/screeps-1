@@ -179,7 +179,9 @@ module.exports = function()
 		var shortest = 1337
 		
 		// Find the two sources that are closest to each other, save their 
-		// objects as sourceLocations[0] and [1] for later use.
+		// objects as sourceLocations[0] and [1] for later use. shortest
+		// is initialized to "1337" since it will always be higher than the length of
+		// the path.
 		
 		for (var a in sources){
 			for (var aa in _.without(sources, sources[a])){
@@ -193,16 +195,81 @@ module.exports = function()
 		
 		// Find the halfway point between the two closest sources.
 		// If it isn't 0, save it to spawnLocations[0] as a position object.
-		var path = creep.room.findPath(sourceLocations[0].pos), sourceLocations[1].pos);
-		var halfwayIndex = math.round(path.length)
+		var path = creep.room.findPath(sourceLocations[0].pos), sourceLocations[1].pos, {ignoreCreeps: true});
+		var halfwayIndex = math.round(path.length/2);
 		if (halfwayIndex > 1){
-			spawnLocations[0] = getPositionAt(path[halwayIndex].x, path.y);
+			spawnLocations[0] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
 		}
 		else {
 			console.log("I have no idea what to do here yet. HEY PROGRAMMER, FIX ME!!")
 		}
+
 		
-		// Find the halfway point between the two closest spawn points of the remaining 3
+		// Subtract the two sources we just found from the variable sources
+		// since we don't need them anymore and we want to compare the remaining 3
+		for (var b in sources){
+			if (sources[b] == sourceLocations[0]){
+				sources.splice(b, 1);
+			}
+			if (sources[b] == sourceLocations[1]){
+				sources.splice(b, 1);
+			}
+		};
+		
+		// Find the two sources closest to each other of the remaining 3.
+		shortest = 1337;
+		for (var c in sources){
+			for (var cc in sources){
+				path = creep.room.findPath(sources[c], sources[cc]);
+				if (path.length < shortest){
+					shortest = path.length;
+					sourceLocation[2] = sources[c];
+					sourceLocation[3] = sources[cc];
+				}
+			}
+		}
+		
+		// Find the position halfway between those two just like before.
+		path = creep.room.findPath(sourceLocation[2].pos, sourceLocation[3].pos, {ignoreCreeps: true});
+		halfwayIndex = math.round(path.length/2);
+		if {halfwayIndex > 1){
+			spawnLocations[1] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+		}
+		
+		// Now we want to make sure this is the most efficient spot for the second spawn.
+		// If it's the case that the third most distant source from spawnLocations[0] is
+		// closer to it than it is to spawnLocations[1], then we want to let the
+		// spawnLocations[1] get as close to the other source as it can.
+		
+		// First figure out what the third most distant source from spawnLocation[0] is.
+		// It sure as hell better be one of the 3 remainders in source or we fucked up earlier,
+		// so it's the closest one of those three.  We will store this in sourceLocation[4].
+		
+		shortest = 1337;
+		for (var d in sources){
+			path = creep.room.findPath(sources[d].pos, spawnLocations[0], {ignoreCreeps:true});
+			if (path.length < shortest){
+				shortest = path.length;
+				sourceLocation[4] = sources[d];
+			}
+		}
+		
+		// Now compare distance of sourceLocation[4] to spawnLocation[1].
+		// If it's longer than shortest from earlier and sourceLocation[4] is either
+		// sourceLocation[2] or [3], then we need to modify spawnLocation[1]
+		// to be as close as it can be to the other source as it can get.
+		path = creep.room.findPath(spawnLocation[1], sourceLocation[4], {ignoreCreeps: true})
+		if (path.length > shortest){
+			if (sourceLocation[2] == sourceLocation[4] || sourceLocation[3] == sourceLocation[4]){
+				// Make sure we're moving to the right source, the one farther from spawnLocations[0].
+				if (creep.room.findPath(spawnLocation[0], sourceLocation[2], {ignoreCreeps: true}).length < creep.room.findPath(spawnLocation[0], sourceLocation[3], {ignoreCreeps:true}).length){
+					path = creep.room.findPath(spawnLocation[1], sourceLocation[2], {ignoreCreeps:true});
+					var indexA = path.length - 1;
+					spawnLocation[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
+				}
+			}
+		}
+		
 		
 	}
 //-------------------------------------------------------------------------
