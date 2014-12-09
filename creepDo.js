@@ -171,12 +171,30 @@ module.exports = function()
 		return creepDo.rememberSource(creepDo.rememberSpawner(creep));
 	}
 	
-	creepDo.calculateSpawnConstruction = function (creep)
+	creepDo.calculateSpawnConstruction = function (creep, minimum)
 	{
+	// When passed a creep and a minimum distance away from spawn, it finds the optimal
+	// pattern for spawn placement, resulting in the lowest possible total distance
+	// between all sources on the map and the spawn closest to them.  They are returned
+	// in an array in the order they should be built.  (It's simply the most optimal, you could
+	// do it suboptimally if you wanted for some reason)  Takes destructible structures
+	// into account for pathfinding, including already placed spawns, so it's best run on an room with
+	// finalized structures.  Can still function in a room with active spawns, but will not take
+	// them into account.
+	//
+	// !WARNINGS!
+	//
+	// As of right now there are exactly 5 sources to a room and if that changes
+	// this method will no longer work.  Similarly, may only place 3 spawns, and
+	// assumes you will eventually place all 3.  Also, if there was a source within 
+	// minimum distance from an exit, it would break.  Intend to fix later.
+	
+	
+	
 		var sources = creep.room.find(Game.SOURCES);
 		var sourceLocations = [];
 		var spawnLocations = [];
-		var shortest = 1337
+		var shortest = 1337;
 		
 		// Find the two sources that are closest to each other, save their 
 		// objects as sourceLocations[0] and [1] for later use. shortest
@@ -286,6 +304,7 @@ module.exports = function()
 		}
 		
 		// Returns array describing where spawns should be in the order they should be spawned.
+		// Note: it completely ignores whether there are friendly or hostile spawns already active.
 		return spawnLocation;
 	}
 //-------------------------------------------------------------------------
