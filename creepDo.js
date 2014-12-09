@@ -208,7 +208,7 @@ module.exports = function()
 
 		// Find the two sources that are closest to each other, save their 
 		// objects as sourceLocations[0] and [1] for later use. shortest
-		// is initialized to "1337" since it will always be higher than the length of
+		// is initialized to "31337" since it will always be higher than the length of
 		// the path.
 		
 		for (var a in sources){
@@ -223,11 +223,16 @@ module.exports = function()
 		}
 		
 		// Find the halfway point between the two closest sources.
-		// If it is larger than the minimum passed to us, save it to spawnLocations[0] as a position object.
+		
+		// ***\/***NEEDS IMPROVEMENT***\/***
 		var path = creep.room.findPath(sourceLocations[0].pos, sourceLocations[1].pos, {ignoreCreeps: true});
 		var halfwayIndex = math.round(path.length/2);
 		spawnLocations[0] = creep.room.getPositionAt(path[halfwayIndex].x, path[halfwayIndex].y);
-
+		// ***/\***NEEDS IMPROVEMENT***/\***
+		// Currently has no error handler for when getPositionAt is passed undefined.
+		// This will happen in a couple cases-there's no path to the source ("the enemy built a wall there")
+		// or when the two spawns are too close together, maybe others.  The error handler below does not
+		// fix it, the mentioned cases break the script currently.
 
 
 		// If the two sources are so close together that the minimum allowable distance makes it
@@ -250,7 +255,6 @@ module.exports = function()
 				spawnLocations[0] = creep.room.getPositionAt(path[path.length - minimum].x, path[path.length - minimum].y);
 			}
 		}
-
 		// ***/\***NEEDS IMPROVEMENT***/\***
 		// It should have a better response to finding things too close together.
 		// Moving to the side or a nearby square that still works would be the proper solution.
@@ -259,7 +263,7 @@ module.exports = function()
 		
 		
 		// Subtract the two sources we just found from the variable sources
-		// since we don't need them anymore and we want to compare the remaining 3
+		// since we don't need them anymore and we want to compare the remaining 3.
 		var toSplice = [];
 		var sources4 = sources;
 		for (var b in sources){
@@ -267,7 +271,12 @@ module.exports = function()
 			    toSplice.push(sources[b]);
 			}
 		}
-		
+		// Nasty trap here, if you try to splice in the sources for loop,
+		// you will end up splicing the wrong things or missing detections
+		// since the length of the array is changing as you splice it!
+		// Without is able to get around this problem in a separate for loop
+		// because it looks for the element mentioned, it doesn't care about 
+		// where it is.
 		for (var bx in toSplice){
 		    sources = _.without(sources, toSplice[bx]);
 		}
@@ -328,6 +337,8 @@ module.exports = function()
 		// If it's longer than shortest from earlier and sourceLocations[4] is either
 		// sourceLocations[2] or [3], then we need to modify spawnLocations[1]
 		// to be as close to the other source as it can get.
+		
+				// ***\/***NEEDS IMPROVEMENT***\/***
 		path = creep.room.findPath(spawnLocations[1], sourceLocations[4].pos, {ignoreCreeps: true})
 		if (path.length > shortest){
 			if (sourceLocations[2] == sourceLocations[4] || sourceLocations[3] == sourceLocations[4]){
@@ -346,6 +357,13 @@ module.exports = function()
 				}
 			}
 		}
+				// ***/\***NEEDS IMPROVEMENT***/\***
+				// We also need to modify the position of spawnLocations[0] in order
+				// to stay optimized.  It works for now though.  Proposed method is to
+				// find path to third source and keep moving the spot towards it until
+				// the total pathfinding distance of all 3 sources to the proposed
+				// spawn location begins to increase.
+		
 		
 		// All that's left now is to assign the final spawnLocations to the remaining source.
 		// That source is going to be the one that isn't sourceLocations [2] or [3].
@@ -374,7 +392,8 @@ module.exports = function()
 		
 		// Returns array describing where spawns should be in the order they should be spawned.
 		// Note: it completely ignores whether there are friendly or hostile spawns already active.
-		spawnLocations[3] = false;
+		spawnLocations[3] = 0;
+		spawnLocations[4] = false;
 		return spawnLocations;
 	}
 //-------------------------------------------------------------------------
