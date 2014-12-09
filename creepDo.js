@@ -1,5 +1,5 @@
 var _ = require('lodash');
-var math = require('math') ();
+var math = require('math');
 module.exports = function()
 {
 //declare base object
@@ -52,6 +52,7 @@ module.exports = function()
 			}
 			if(source.energy) {
 				creep.harvest(source);
+				console.log (creepDo.calculateSpawnConstruction(creep, 2));
 			}
 			else {
 				console.log(creep.memory.homeSpawn + "'s source is dry.");
@@ -180,7 +181,9 @@ module.exports = function()
 	// do it suboptimally if you wanted for some reason)  Takes destructible structures
 	// into account for pathfinding, including already placed spawns, so it's best run on an room with
 	// finalized structures.  Can still function in a room with active spawns, but will not take
-	// them into account.
+	// them into account.  Suggest minimum of at least 2.  Does not work when sources are directly
+	// adjacent to one another yet.  Still not polished, some problems still.
+	// All can be solved, all will be solved.
 	//
 	// !WARNINGS!
 	//
@@ -202,18 +205,19 @@ module.exports = function()
 		var sourceLocations = [];
 		var spawnLocations = [];
 		var shortest = 31337;
-		
+
 		// Find the two sources that are closest to each other, save their 
 		// objects as sourceLocations[0] and [1] for later use. shortest
 		// is initialized to "1337" since it will always be higher than the length of
 		// the path.
 		
 		for (var a in sources){
-			for (var aa in _.without(sources, sources[a])){
-				if (sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length < shortest){
-					shortest = sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length;
+		    var sources2 = _.without(sources, sources[a]);
+			for (var aa in sources2){
+				if (sources[a].room.findPath(sources[a].pos, sources2[aa].pos, {ignoreCreeps: true}).length < shortest){
+					shortest = sources[a].room.findPath(sources[a].pos, sources2[aa].pos, {ignoreCreeps: true}).length;
 					sourceLocations[0] = sources[a];
-					sourceLocations[1] = sources[aa];
+					sourceLocations[1] = sources2[aa];
 				}
 			}
 		}
@@ -256,24 +260,29 @@ module.exports = function()
 		
 		// Subtract the two sources we just found from the variable sources
 		// since we don't need them anymore and we want to compare the remaining 3
+		var toSplice = [];
+		var sources4 = sources;
 		for (var b in sources){
-			if (sources[b] == sourceLocations[0]){
-				sources.splice(b, 1);
-			}
-			if (sources[b] == sourceLocations[1]){
-				sources.splice(b, 1);
+			if (sources[b] == sourceLocations[0] || sources[b] == sourceLocations[1]){
+			    toSplice.push(sources[b]);
 			}
 		}
+		
+		for (var bx in toSplice){
+		    sources = _.without(sources, toSplice[bx]);
+		}
+		
 		
 		// Find the two sources closest to each other of the remaining 3.
 		shortest = 31337;
 		for (var c in sources){
-			for (var cc in _.without(sources, sources[c])){
-				path = creep.room.findPath(sources[c], sources[cc], {ignoreCreeps:true});
+		    sources2 = _.without(sources, sources[c]);
+			for (var cc in sources2){
+				path = creep.room.findPath(sources[c], sources2[cc], {ignoreCreeps:true});
 				if (path.length < shortest){
 					shortest = path.length;
 					sourceLocations[2] = sources[c];
-					sourceLocations[3] = sources[cc];
+					sourceLocations[3] = sources2[cc];
 				}
 			}
 		}
@@ -281,7 +290,7 @@ module.exports = function()
 		// Find the position halfway between those two and assign to the next spawn location.
 		path = creep.room.findPath(sourceLocations[2].pos, sourceLocations[3].pos, {ignoreCreeps: true});
 		halfwayIndex = math.round(path.length/2);
-		spawnLocations[1] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+		spawnLocations[1] = creep.room.getPositionAt(path[halfwayIndex].x, path[halfwayIndex].y);
 		// Same error code handling as before.
 		if (halfwayIndex < minimum){
 			path = creep.pos.room.findPath(creep.pos, spawnLocations[1], {ignoreCreeps:true});
@@ -345,14 +354,14 @@ module.exports = function()
 		for (var e in sources){
 			if (sources[e] != sourceLocations[2] && sources[e] != sourceLocations[3]){
 				path = creep.room.findPath(creep.pos, sources[e].pos, {ignoreCreeps:true});
-				if (minimum > path.length) {
+				if (minimum < path.length) {
 					var indexC = path.length - minimum;
 					spawnLocations[2] = creep.room.getPositionAt(path[indexC].x, path[indexC].y, {ignoreCreeps:true});
 				}
 				else {
 					console.log("!!!creepDo.calculateSpawnConstruction error: creep calling method needs to move!!!")
 					spawnLocations[3] = 1;
-					spawnLocations[4] = creep.room.getPositionAt(path[path.length].x, path[path.length].y, {ignoreCreeps:true});
+					spawnLocations[4] = creep.room.getPositionAt(path[path.length - 1].x, path[path.length - 1].y, {ignoreCreeps:true});
 					return spawnLocations;
 				}
 			}	
