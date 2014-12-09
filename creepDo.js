@@ -212,8 +212,8 @@ module.exports = function()
 			for (var aa in _.without(sources, sources[a])){
 				if (sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length < shortest){
 					shortest = sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length;
-					sourceLocations[0] = source[a];
-					sourceLocations[1] = source[aa];
+					sourceLocations[0] = sources[a];
+					sourceLocations[1] = sources[aa];
 				}
 			}
 		}
@@ -222,9 +222,8 @@ module.exports = function()
 		// If it is larger than the minimum passed to us, save it to spawnLocations[0] as a position object.
 		var path = creep.room.findPath(sourceLocations[0].pos, sourceLocations[1].pos, {ignoreCreeps: true});
 		var halfwayIndex = math.round(path.length/2);
-		spawnLocations[0] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+		spawnLocations[0] = creep.room.getPositionAt(path[halfwayIndex].x, path[halfwayIndex].y);
 
-		// ***\/***NEEDS IMPROVEMENT***\/***
 
 
 		// If the two sources are so close together that the minimum allowable distance makes it
@@ -233,6 +232,8 @@ module.exports = function()
 		// to that path.  If the creep is closer than the minimum distance to the proposed location,
 		// we will return an error telling the creep to move somewhere else.  We'll even be nice enough
 		// to give him the location the proposed site is at so he can avoid it properly.
+		
+		// ***\/***NEEDS IMPROVEMENT***\/***
 		if (halfwayIndex < minimum){
 			path = creep.pos.room.findPath(creep.pos, spawnLocations[0], {ignoreCreeps:true});
 			if(path.length < minimum){
@@ -344,9 +345,10 @@ module.exports = function()
 		for (var e in sources){
 			if (sources[e] != sourceLocations[2] && sources[e] != sourceLocations[3]){
 				path = creep.room.findPath(creep.pos, sources[e].pos, {ignoreCreeps:true});
-				if (path.length !< minimum) {
+				if (minimum > path.length) {
 					var indexC = path.length - minimum;
 					spawnLocations[2] = creep.room.getPositionAt(path[indexC].x, path[indexC].y, {ignoreCreeps:true});
+				}
 				else {
 					console.log("!!!creepDo.calculateSpawnConstruction error: creep calling method needs to move!!!")
 					spawnLocations[3] = 1;
