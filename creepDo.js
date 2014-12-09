@@ -265,7 +265,6 @@ module.exports = function()
 		// Subtract the two sources we just found from the variable sources
 		// since we don't need them anymore and we want to compare the remaining 3.
 		var toSplice = [];
-		var sources4 = sources;
 		for (var b in sources){
 			if (sources[b] == sourceLocations[0] || sources[b] == sourceLocations[1]){
 			    toSplice.push(sources[b]);
