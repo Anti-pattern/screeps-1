@@ -188,7 +188,14 @@ module.exports = function()
 	// this method will no longer work.  Similarly, may only place 3 spawns, and
 	// assumes you will eventually place all 3.  Also, if there was a source within 
 	// minimum distance from an exit, it would break.  Intend to fix later.
-	
+	//
+	// ERROR CODES:
+	// spawnLocations[3] = 0	: Operation was successful.
+	// spawnLocations[3] = 1	: Creep needs to move somewhere else in order to place spawns.
+	// spawnLocations[4] = pos	: Position creep needs to avoid in case of error type 1.
+	//
+	//
+	//
 	
 	
 		var sources = creep.room.find(Game.SOURCES);
@@ -203,8 +210,8 @@ module.exports = function()
 		
 		for (var a in sources){
 			for (var aa in _.without(sources, sources[a])){
-				if (sources[a].pos.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length < shortest){
-					shortest = sources[a].pos.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length;
+				if (sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length < shortest){
+					shortest = sources[a].room.findPath(sources[a].pos, sources[aa].pos, {ignoreCreeps: true}).length;
 					sourceLocations[0] = source[a];
 					sourceLocations[1] = source[aa];
 				}
@@ -212,16 +219,36 @@ module.exports = function()
 		}
 		
 		// Find the halfway point between the two closest sources.
-		// If it isn't 0, save it to spawnLocations[0] as a position object.
-		var path = creep.room.findPath(sourceLocations[0].pos), sourceLocations[1].pos, {ignoreCreeps: true});
+		// If it is larger than the minimum passed to us, save it to spawnLocations[0] as a position object.
+		var path = creep.room.findPath(sourceLocations[0].pos, sourceLocations[1].pos, {ignoreCreeps: true});
 		var halfwayIndex = math.round(path.length/2);
-		if (halfwayIndex > 1){
-			spawnLocations[0] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
-		}
-		else {
-			console.log("I have no idea what to do here yet. HEY PROGRAMMER, FIX ME!!")
+		spawnLocations[0] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+
+		// ***\/***NEEDS IMPROVEMENT***\/***
+
+
+		// If the two sources are so close together that the minimum allowable distance makes it
+		// impossible to get between them, while sub-optimal, we're going to find a path from the
+		// relatively arbitrary position of the creep calling the method and apply the minimum distance
+		// to that path.  If the creep is closer than the minimum distance to the proposed location,
+		// we will return an error telling the creep to move somewhere else.  We'll even be nice enough
+		// to give him the location the proposed site is at so he can avoid it properly.
+		if (halfwayIndex > minimum){
+			path = creep.pos.room.findPath(creep.pos, spawnLocations[0], {ignoreCreeps:true});
+			if(path.length !> minimum){
+				console.log("!!!calculateSpawnConstruction error: creep calling method needs to move!!!")
+				spawnLocations[3] = 1;
+				spawnLocations[4] = spawnLocations[0];
+				return spawnLocations;
+			}
+			else {
+				spawnLocations[0] = creep.room.getPositionAt(path[path.length-minimum].x, path[path.length-minimum].y);
+			}
 		}
 
+		// ***/\***NEEDS IMPROVEMENT***/\***
+
+		
 		
 		// Subtract the two sources we just found from the variable sources
 		// since we don't need them anymore and we want to compare the remaining 3
