@@ -194,14 +194,14 @@ module.exports = function()
 	// spawnLocations[3] = 1	: Creep needs to move somewhere else in order to place spawns.
 	// spawnLocations[4] = pos	: Position creep needs to avoid in case of error type 1.
 	//
-	//
+	// Note: spawnLocations[4] will return false if spawnLocations[3] = 0.
 	//
 	
 	
 		var sources = creep.room.find(Game.SOURCES);
 		var sourceLocations = [];
 		var spawnLocations = [];
-		var shortest = 1337;
+		var shortest = 31337;
 		
 		// Find the two sources that are closest to each other, save their 
 		// objects as sourceLocations[0] and [1] for later use. shortest
@@ -233,21 +233,24 @@ module.exports = function()
 		// to that path.  If the creep is closer than the minimum distance to the proposed location,
 		// we will return an error telling the creep to move somewhere else.  We'll even be nice enough
 		// to give him the location the proposed site is at so he can avoid it properly.
-		if (halfwayIndex > minimum){
+		if (halfwayIndex < minimum){
 			path = creep.pos.room.findPath(creep.pos, spawnLocations[0], {ignoreCreeps:true});
-			if(path.length !> minimum){
-				console.log("!!!calculateSpawnConstruction error: creep calling method needs to move!!!")
+			if(path.length < minimum){
+				console.log("!!!creepDo.calculateSpawnConstruction error: creep calling method needs to move!!!")
 				spawnLocations[3] = 1;
 				spawnLocations[4] = spawnLocations[0];
 				return spawnLocations;
 			}
 			else {
-				spawnLocations[0] = creep.room.getPositionAt(path[path.length-minimum].x, path[path.length-minimum].y);
+				spawnLocations[0] = creep.room.getPositionAt(path[path.length - minimum].x, path[path.length - minimum].y);
 			}
 		}
 
 		// ***/\***NEEDS IMPROVEMENT***/\***
-
+		// It should have a better response to finding things too close together.
+		// Moving to the side or a nearby square that still works would be the proper solution.
+		// It's also a pain that it cares about the current position of the creep at any point
+		// in the method.
 		
 		
 		// Subtract the two sources we just found from the variable sources
@@ -259,80 +262,109 @@ module.exports = function()
 			if (sources[b] == sourceLocations[1]){
 				sources.splice(b, 1);
 			}
-		};
+		}
 		
 		// Find the two sources closest to each other of the remaining 3.
-		shortest = 1337;
+		shortest = 31337;
 		for (var c in sources){
-			for (var cc in sources){
-				path = creep.room.findPath(sources[c], sources[cc]);
+			for (var cc in _.without(sources, sources[c])){
+				path = creep.room.findPath(sources[c], sources[cc], {ignoreCreeps:true});
 				if (path.length < shortest){
 					shortest = path.length;
-					sourceLocation[2] = sources[c];
-					sourceLocation[3] = sources[cc];
+					sourceLocations[2] = sources[c];
+					sourceLocations[3] = sources[cc];
 				}
 			}
 		}
 		
-		// Find the position halfway between those two just like before.
-		path = creep.room.findPath(sourceLocation[2].pos, sourceLocation[3].pos, {ignoreCreeps: true});
+		// Find the position halfway between those two and assign to the next spawn location.
+		path = creep.room.findPath(sourceLocations[2].pos, sourceLocations[3].pos, {ignoreCreeps: true});
 		halfwayIndex = math.round(path.length/2);
-		if {halfwayIndex > 1){
-			spawnLocations[1] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+		spawnLocations[1] = creep.room.getPositionAt(path[halwayIndex].x, path[halfwayIndex].y);
+		// Same error code handling as before.
+		if (halfwayIndex < minimum){
+			path = creep.pos.room.findPath(creep.pos, spawnLocations[1], {ignoreCreeps:true});
+			if(path.length < minimum){
+				console.log("!!!creepDo.calculateSpawnConstruction error: creep calling method needs to move!!!")
+				spawnLocations[3] = 1;
+				spawnLocations[4] = spawnLocations[1];
+				return spawnLocations;
+			}
+			else {
+				spawnLocations[1] = creep.room.getPositionAt(path[path.length - minimum].x, path[path.length - minimum].y);
+			}
 		}
+		
 		
 		// Now we want to make sure this is the most efficient spot for the second spawn.
 		// If it's the case that the third most distant source from spawnLocations[0] is
 		// closer to it than it is to spawnLocations[1], then we want to let the
 		// spawnLocations[1] get as close to the other source as it can.
 		
-		// First figure out what the third most distant source from spawnLocation[0] is.
+		// First figure out what the third most distant source from spawnLocations[0] is.
 		// It sure as hell better be one of the 3 remainders in source or we fucked up earlier,
-		// so it's the closest one of those three.  We will store this in sourceLocation[4].
+		// so it's the closest one of those three.  We will store this in sourceLocations[4].
 		
-		shortest = 1337;
+		shortest = 31337;
 		for (var d in sources){
 			path = creep.room.findPath(sources[d].pos, spawnLocations[0], {ignoreCreeps:true});
 			if (path.length < shortest){
 				shortest = path.length;
-				sourceLocation[4] = sources[d];
+				sourceLocations[4] = sources[d];
 			}
 		}
 		
-		// Now compare distance of sourceLocation[4] to spawnLocation[1].
-		// If it's longer than shortest from earlier and sourceLocation[4] is either
-		// sourceLocation[2] or [3], then we need to modify spawnLocation[1]
-		// to be as close as it can be to the other source as it can get.
-		path = creep.room.findPath(spawnLocation[1], sourceLocation[4], {ignoreCreeps: true})
+		// Now compare distance of sourceLocations[4] to spawnLocations[1].
+		// If it's longer than shortest from earlier and sourceLocations[4] is either
+		// sourceLocations[2] or [3], then we need to modify spawnLocations[1]
+		// to be as close to the other source as it can get.
+		path = creep.room.findPath(spawnLocations[1], sourceLocations[4].pos, {ignoreCreeps: true})
 		if (path.length > shortest){
-			if (sourceLocation[2] == sourceLocation[4] || sourceLocation[3] == sourceLocation[4]){
+			if (sourceLocations[2] == sourceLocations[4] || sourceLocations[3] == sourceLocations[4]){
 				// Make sure we're moving to the right source, the one farther from spawnLocations[0].
-				if (creep.room.findPath(spawnLocation[0], sourceLocation[2], {ignoreCreeps: true}).length > creep.room.findPath(spawnLocation[0], sourceLocation[3], {ignoreCreeps:true}).length){
-					path = creep.room.findPath(spawnLocation[1], sourceLocation[2], {ignoreCreeps:true});
-					var indexA = path.length - 2;
-					spawnLocation[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
+				// I don't believe we need to error handle here as if path.length were less than the minimum,
+				// it would have been caught in creating spawnLocations[1].
+				if (creep.room.findPath(spawnLocations[0], sourceLocations[2].pos, {ignoreCreeps: true}).length > creep.room.findPath(spawnLocations[0], sourceLocations[3].pos, {ignoreCreeps:true}).length){
+					path = creep.room.findPath(spawnLocations[1], sourceLocations[2].pos, {ignoreCreeps:true});
+					var indexA = path.length - minimum;
+					spawnLocations[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
 				}
 				else {
-					path = creep.room.findPath(spawnLocation[1], sourceLocation[3], {ignoreCreeps:true});
-					var indexA = path.length - 2;
-					spawnLocation[1] = creep.room.getPositionAt(path[indexA].x, path[indexA].y);
+					path = creep.room.findPath(spawnLocations[1], sourceLocations[3].pos, {ignoreCreeps:true});
+					var indexB = path.length - minimum;
+					spawnLocations[1] = creep.room.getPositionAt(path[indexB].x, path[indexB].y);
 				}
 			}
 		}
 		
-		// All that's left now is to assign the final spawnLocation to the remaining source.
-		// That source is going to be the one that isn't sourceLocation [2] or [3].
+		// All that's left now is to assign the final spawnLocations to the remaining source.
+		// That source is going to be the one that isn't sourceLocations [2] or [3].
+		// ***\/***NEEDS IMPROVEMENT***\/***
+
 		for (var e in sources){
-			if (sources[e].pos != sourceLocation[2] && sources[e].pos != sourceLocation[3]){
+			if (sources[e] != sourceLocations[2] && sources[e] != sourceLocations[3]){
 				path = creep.room.findPath(creep.pos, sources[e].pos, {ignoreCreeps:true});
-				var indexB = path.length - 2;
-				spawnLocation[2] = creep.room.getPositionAt(path[indexB].x, path[indexB].y);
-			}
+				if (path.length !< minimum) {
+					var indexC = path.length - minimum;
+					spawnLocations[2] = creep.room.getPositionAt(path[indexC].x, path[indexC].y, {ignoreCreeps:true});
+				else {
+					console.log("!!!creepDo.calculateSpawnConstruction error: creep calling method needs to move!!!")
+					spawnLocations[3] = 1;
+					spawnLocations[4] = creep.room.getPositionAt(path[path.length].x, path[path.length].y, {ignoreCreeps:true});
+					return spawnLocations;
+				}
+			}	
 		}
+		// ***/\***NEEDS IMPROVEMENT***/\***
+		// Should try to make a path from the closest other spawn location, not the creep, I think.
+		// Could always resort to creep if that location fails as an error handler like the other ones.
+		
+		
 		
 		// Returns array describing where spawns should be in the order they should be spawned.
 		// Note: it completely ignores whether there are friendly or hostile spawns already active.
-		return spawnLocation;
+		spawnLocations[3] = false;
+		return spawnLocations;
 	}
 //-------------------------------------------------------------------------
 //return populated object
