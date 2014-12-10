@@ -17,23 +17,24 @@ spawnManager.costs[Game.TOUGH] = 5;
 //spawn
 	spawnManager.spawn = function ()
 	{
-		var sharvesterCount = jobManager.countUnitWithMeans('sharvest');
-		var collectorCount = jobManager.countUnitWithMeans('collect')
-		var guardCount = jobManager.countUnitWithMeans('attackHostile');
-		console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount + " Guard: " + guardCount);
-		if (!sharvesterCount){
-			console.log('Attempting to spawn initial harvester');
-			spawnManager.spawnUnit('hulk');
-		}
-		else if (sharvesterCount < guardCount/5)
-		{
-			console.log('Attempting to spawn harvester');
-			spawnManager.spawnUnit('hulk');
-		}
-		else if (collectorCount < (sharvesterCount*2))
-		{
-			console.log('Attempting to spawn collector')
-			spawnManager.spawnUnit('iteron')
+		for (var a in Game.spawn){
+			var sharvesterCount = jobManager.countUnitWithMeans('sharvest');
+			var collectorCount = jobManager.countUnitWithMeans('collect')
+			var guardCount = jobManager.countUnitWithMeans('attackHostile');
+			console.log('Unit Count - Harvest: ' + sharvesterCount + "Collector: " + collectorCount + " Guard: " + guardCount);
+			if (!sharvesterCount){
+				console.log('Attempting to spawn initial harvester');
+				spawnManager.spawnUnit('hulk');
+			}
+			else if (sharvesterCount < guardCount/5 && sharvesterCount < 2)
+			{
+				console.log('Attempting to spawn harvester');
+				spawnManager.spawnUnit('hulk');
+			}
+			else if (collectorCount < (sharvesterCount*2))
+			{
+				console.log('Attempting to spawn collector')
+				spawnManager.spawnUnit('iteron')
 // var buddies = creep.room.find(Game.MY_CREEPS);
 // for (var i in buddies){
 // if (jobManager.creepHasMeans(buddies[i], 'sharvest'){
@@ -84,7 +85,11 @@ spawnManager.costs[Game.TOUGH] = 5;
 				var creepName = spawnManager.generateName(name)
 				console.log("creating creep " + name + " : " + creepName);
 				spawn.createCreep(units[name].parts, creepName, units[name].memory);
-				units[name].memory.pals = 0;
+				units[name].memory.collectors = 0;
+				units[name].memory.currentlyAssigned = 0;
+				units[name].memory.assignment = "";
+				units[name].memory.homeSpawn = spawn.name;
+				units[name].memory.assignedSource = "";
 			}
 		}
 		else
